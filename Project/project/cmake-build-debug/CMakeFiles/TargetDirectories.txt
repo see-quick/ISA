@@ -1,0 +1,3 @@
+/home/majkl/Documents/School/SchoolGit/7.semester/ISA/Project/project/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/majkl/Documents/School/SchoolGit/7.semester/ISA/Project/project/cmake-build-debug/CMakeFiles/ISA.dir
+/home/majkl/Documents/School/SchoolGit/7.semester/ISA/Project/project/cmake-build-debug/CMakeFiles/edit_cache.dir

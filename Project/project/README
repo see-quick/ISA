@@ -1,0 +1,149 @@
+The project doesn't have any constrains. 
+
+Everything is described in manual.pdf also with example how to use this applications. 
+
+Here is the examples how to use it properly:
+
+
+# 1 Example
+## 1.1 Test by isaclient 
+
+### Same for all scenarios
+    1. start the terminal
+    2. execute make in root project
+    3. start the server using command ./isaserver -p 30000
+    4. we can verify that server is listening on port 30000 using command netstat -ntl | grep 30000
+
+
+##### Get, add and delete boards
+    1. simply we want all boards using command ./isaclient -H localhost -p 30000
+        boards. Response will be only headers which will be printed in stderr and stdout 
+        we will see only [–Boards–].
+    2. we can add new board with name newboard using command ./isaclient -H local-
+        host -p 30000 board newboard. Response will be with headers with status 201
+        Created and empty body.
+    3. Now if we list all boards we should see newboard using command ./isaclient -H
+        localhost -p 30000 boards
+    4. we can try to add board with invalid name such as rd12321%$#$ it will be not
+        created. Response will be ’ERROR: Wrong name of board should contains only [a-
+        zA-Z0-9]’
+    5. we can try to delete non-existing board for example using command ./isaclient -H
+        localhost -p 30000 delete board wwwww. Response will be status code 404 Not
+        found.
+    6. on the other if we can to delete the existing one using command ./isaclient -H
+        localhost -p 30000 delete board newboard. Response will be status code 200
+        OK and to verify that board were deleted using command ./isaclient -H localhost
+        -p 30000 boards
+    7. we can simply also invoke 409 Conflict status to add two boards with the same name
+
+#### Add, delete, update and get all commends in board
+
+    1. we will add new board with name myboard using command ./isaclient -H localhost
+        -p 30000 board add myboard
+    2. we can verify that in this board there is no commend and it is empty using command
+        ./isaclient -H localhost -p 30000 board list myboard
+    3. now we can add one line commend inside this board using command ./isaclient -H
+        localhost -p 30000 item add myboard new-one-line-commend
+    4. we can add another one using command ./isaclient -H localhost -p 30000 item
+        add myboard new-second-line-commend
+    5. now we can verify that commends were added using command ./isaclient -H local-
+        host -p 30000 board list myboard
+    6. we can try add multiline commend using comnand 
+        ./isaclient -H localhost -p 30000 item add myboard new-multiline-commend\\nsecondlinehere\\nthird-line-with-commend (notice that if you want mutliline commend you need to use
+        double backslash instead of one because C++ are escaping it.)
+    7. now we can delete the first one commend using command 
+        ./isaclient -H localhost -p 30000 item delete myboard 1 
+        (reordering of commends are inside of this logic)
+    8. we can try to delete non existing for example the 5th one using command 
+        ./isaclient -H localhost -p 30000 item delete myboard 5. Response will be status code 404
+        Not found
+    9. we can try to update mutliline commend using command 
+        ./isaclient -H localhost -p 30000 item update myboard 2 update-message. 
+        We can verify that with the command 
+        ./isaclient -H localhost -p 30000 board list myboard
+    10. same stuff if we want to update non-existing commend will happended. Status 404
+        Not found will be printed to the stderr.
+
+## 1.2 Test by curl
+
+### Same for all scenarios
+    1. start the terminal
+    2. execute make in root project
+    3. start the server using command ./isaserver -p 30000
+    4. we can verify that server is listening on port 30000 using command netstat -ntl | grep 30000
+
+##### Get, add and delete boards
+    1.simply we want all boards using command 
+        curl -X GET http://127.0.0.1:30000/boards
+        Response will be only bode [–Boards–]. In servers logs we will see also headers which
+        were returned.
+    2. we can add new board with name newboard using command 
+        curl -X POST http://127.0.0.1:30000/boards/newboard
+        Response will be with headers with status 201 Created and empty body.
+    3. Now if we list all boards we should see newboard using command 
+        curl -X GET http://127.0.0.1:30000/boards -o outputFile && cat outputFile
+    4. Now we can try invoke 400 code using command
+        curl -X POST http://127.0.0.1:30000/boards/ 
+        We can verify it on server side logs.
+    5. we can try to add board with invalid name such as rd12321%$#$ using command
+        curl -X POST http://127.0.0.1:30000/boards/rd12321%$#$ 
+        it will be not created. Response will be 
+        ’ERROR: Wrong name of board should contains only [a-zA-Z0-9]’ on server logs with 404 Not found.
+    6. we can try to delete non-existing board for example using command 
+        curl -X DELETE http://127.0.0.1:30000/boards/wwwww 
+        Response will be status code 404 Not found in server logs.
+    7. on the other if we can to delete the existing one using command 
+        curl -X DELETE http://127.0.0.1:30000/boards/newboard 
+        Response will be status code 200 OK in server logs and to verify that board were deleted using command 
+        curl -X GET http://127.0.0.1:30000/boards
+    8. we can simply also invoke 409 Conflict status to add two boards with the same name
+        using command two times 
+        curl -X POST http://127.0.0.1:30000/boards/newboard
+
+#### Add, delete, update and get all commends in board
+
+    1. we will add new board with name myboard using command
+        curl -X POST http://127.0.0.1:30000/boards/myboard
+    2. we can verify that in this board there is no commend and it is empty using command
+        curl -X GET http://127.0.0.1:30000/board/myboard
+    3. now we can add one line commend inside this board using command
+        curl -X POST http://127.0.0.1:30000/board/myboard -d 'new-one-line-commend'
+    4. we can add another one using command
+        curl -X POST http://127.0.0.1:30000/board/myboard -d 'new-second-line-commend'
+    5. we can also invoke status code 400 using command
+        curl -X POST http://127.0.0.1:30000/board/myboard 
+        with empty body asyou can see
+    6. now we can verify that commends were added using command
+        curl -X GET http://127.0.0.1:30000/board/myboard
+    7. we can try add multiline commend using comnand
+        curl -X POST http://127.0.0.1:30000/board/myboard -d 'new-multiline-commend\\nsecondlinehere\\nthird-line-with-commend'
+    8. now we can delete the first one commend using command
+        curl -X DELETE http://127.0.0.1:30000/board/myboard/1 
+        (reordering of commends are inside of this logic)
+    9. we can try to delete non existing for example the 5th one using command 
+        curl -X DELETE http://127.0.0.1:30000/board/myboard/5 
+        Response will be status code 404 Not found in servers logs
+    10. we can try to update mutliline commend using command 
+        curl -X PUT http://127.0.0.1:30000/board/2 -d 'update-message' 
+        We can verify that with the command 
+        curl -X GET http://127.0.0.1:30000/board/myboard
+    11. same stuff if we want to update non-existing commend will happended. Status 404 Not found
+    12. last thing we can do is to invoke 400 status code using command curl -X PUT
+        http://127.0.0.1:30000/board/myboard/1 because we are sending 0B in body
+
+
+## 1.3 Test by Postman
+
+You can also check it with the Postman application[1], which is really switch and quick.
+
+
+Bibliography
+
+[1] -> "https://www.getpostman.com/"
+
+
+
+
+
+
+
